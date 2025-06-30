@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Example</title>
+</head>
+<body>
+    <h1>WebSocket for User2 Page:</h1>
+
+    <ul id="messages"></ul>
+
+    <input type="text" id="messageInput" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const socket = new WebSocket("ws://localhost:8080/ws/chat2");
+		socket.onmessage = function(event) {
+		            const li = document.createElement("li");
+		            li.textContent = "Other: " + event.data;
+		            document.getElementById("messages").appendChild(li);
+		        };
+        // Send message when button is clicked
+        function sendMessage() {
+            const input = document.getElementById("messageInput");
+            const message = input.value.trim();
+            if (message) {
+                socket.send(message);
+                const li = document.createElement("li");
+               li.textContent = "You: " + message;
+                document.getElementById("messages").appendChild(li);
+
+                input.value = ""; // Clear input
+            }
+        }
+    </script>
+</body>
+</html>

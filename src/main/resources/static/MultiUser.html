@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multi-User Chat</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+            margin: 0;
+            padding: 0;
+            animation: fadeInBody 1s ease-in;
+        }
+
+        @keyframes fadeInBody {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+            animation: fadeInContainer 0.7s ease-in;
+        }
+
+        @keyframes fadeInContainer {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        h2, h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        #chatMessages {
+            list-style: none;
+            padding: 10px;
+            height: 250px;
+            overflow-y: auto;
+            background: #f5f7fa;
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chatMessages li {
+            padding: 10px 14px;
+            margin: 6px 0;
+            max-width: 70%;
+            border-radius: 18px;
+            position: relative;
+            animation: fadeInMsg 0.3s ease-in;
+            word-wrap: break-word;
+        }
+
+        #chatMessages li.sent {
+            background-color: #d4f8e8;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+            text-align: right;
+        }
+
+        #chatMessages li.received {
+            background-color: #e6f0ff;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+            text-align: left;
+        }
+
+        @keyframes fadeInMsg {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .message-area input {
+            flex: 1;
+        }
+
+        label {
+            font-weight: bold;
+            color: #444;
+            margin-top: 10px;
+            display: block;
+        }
+
+        #registerSection {
+            animation: fadeInForm 0.5s ease-in;
+        }
+
+        @keyframes fadeInForm {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Multi-User Chat</h2>
+
+        <div id="registerSection">
+            <input type="text" id="usernameInput" placeholder="Enter your name" />
+            <button onclick="registerUser()">Register</button>
+        </div>
+
+        <div id="chatSection" style="display:none;">
+            <h3>Welcome, <span id="currentUser"></span></h3>
+
+            <label>Select user to chat with:</label>
+            <select id="userList"></select>
+
+            <ul id="chatMessages"></ul>
+
+            <div class="message-area">
+                <input type="text" id="messageInput" placeholder="Type your message..." />
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let socket;
+        let username;
+
+        function registerUser() {
+            username = document.getElementById("usernameInput").value.trim();
+            if (!username) return alert("Enter a name!");
+
+			socket = new WebSocket("wss://chatapplication-773e.onrender.com/ws/chat");
+
+            socket.onopen = () => {
+                socket.send(JSON.stringify({ type: "register", username }));
+                document.getElementById("chatSection").style.display = "block";
+                document.getElementById("registerSection").style.display = "none";
+                document.getElementById("currentUser").textContent = username;
+            };
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+
+                if (data.type === "userList") {
+                    updateUserList(data.users);
+                } else {
+                    const li = document.createElement("li");
+                    li.textContent = `${data.from}: ${data.content}`;
+                    li.classList.add(data.from === username ? "sent" : "received");
+                    document.getElementById("chatMessages").appendChild(li);
+                    scrollToBottom();
+                }
+            };
+        }
+
+        function sendMessage() {
+            const toUser = document.getElementById("userList").value;
+            const content = document.getElementById("messageInput").value.trim();
+            if (!toUser || !content) return;
+
+            socket.send(JSON.stringify({
+                type: "message",
+                from: username,
+                to: toUser,
+                content: content
+            }));
+
+            const li = document.createElement("li");
+            li.textContent = `You: ${content}`;
+            li.classList.add("sent");
+            document.getElementById("chatMessages").appendChild(li);
+            document.getElementById("messageInput").value = "";
+            scrollToBottom();
+        }
+
+        function updateUserList(users) {
+            const userList = document.getElementById("userList");
+            userList.innerHTML = "";
+            users.forEach(u => {
+                if (u !== username) {
+                    const option = document.createElement("option");
+                    option.value = u;
+                    option.textContent = u;
+                    userList.appendChild(option);
+                }
+            });
+        }
+
+        function scrollToBottom() {
+            const chatBox = document.getElementById("chatMessages");
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
