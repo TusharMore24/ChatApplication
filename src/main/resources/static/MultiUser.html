@@ -168,7 +168,7 @@
             username = document.getElementById("usernameInput").value.trim();
             if (!username) return alert("Enter a name!");
 
-			socket = new WebSocket(`${location.origin.replace(/^http/, "ws")}/ws/chat`);
+			socket = new WebSocket("wss://chatapplication-773e.onrender.com/ws/chat");
 
             socket.onopen = () => {
                 socket.send(JSON.stringify({ type: "register", username }));
