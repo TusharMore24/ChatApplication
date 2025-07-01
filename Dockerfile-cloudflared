@@ -1,0 +1,2 @@
+FROM cloudflare/cloudflared:latest
+CMD ["tunnel", "--url", "http://host.docker.internal:8080"]

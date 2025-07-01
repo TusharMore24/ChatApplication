@@ -169,7 +169,10 @@
             if (!username) return alert("Enter a name!");
 
 			//socket = new WebSocket("wss://chatapplication-773e.onrender.com/ws/chat");
+
 			socket = new WebSocket("wss://grace-anyway-icq-same.trycloudflare.com/ws/chat");
+			//socket = new WebSocket("ws://localhost:8080/ws/chat");
+			aabeab (Your commit message)
 
             socket.onopen = () => {
                 socket.send(JSON.stringify({ type: "register", username }));
