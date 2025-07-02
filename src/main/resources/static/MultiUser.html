@@ -160,77 +160,75 @@
         </div>
     </div>
 
-	<script>
-	document.addEventListener("DOMContentLoaded", function () {
-	    let socket;
-	    let username;
+    <script>
+        let socket;
+        let username;
 
-	    window.registerUser = function () {
-	        username = document.getElementById("usernameInput").value.trim();
-	        if (!username) return alert("Enter a name!");
+        function registerUser() {
+            username = document.getElementById("usernameInput").value.trim();
+            if (!username) return alert("Enter a name!");
 
-	        socket = new WebSocket("wss://severe-payroll-previews-validation.trycloudflare.com/ws/chat");
+            socket = new WebSocket("wss://severe-payroll-previews-validation.trycloudflare.com/ws/chat");
 
-	        socket.onopen = () => {
-	            socket.send(JSON.stringify({ type: "register", username }));
-	            document.getElementById("chatSection").style.display = "block";
-	            document.getElementById("registerSection").style.display = "none";
-	            document.getElementById("currentUser").textContent = username;
-	        };
+            socket.onopen = () => {
+                socket.send(JSON.stringify({ type: "register", username }));
+                document.getElementById("chatSection").style.display = "block";
+                document.getElementById("registerSection").style.display = "none";
+                document.getElementById("currentUser").textContent = username;
+            };
 
-	        socket.onmessage = (event) => {
-	            const data = JSON.parse(event.data);
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
 
-	            if (data.type === "userList") {
-	                updateUserList(data.users);
-	            } else {
-	                const li = document.createElement("li");
-	                li.textContent = `${data.from}: ${data.content}`;
-	                li.classList.add(data.from === username ? "sent" : "received");
-	                document.getElementById("chatMessages").appendChild(li);
-	                scrollToBottom();
-	            }
-	        };
-	    }
+                if (data.type === "userList") {
+                    updateUserList(data.users);
+                } else {
+                    const li = document.createElement("li");
+                    li.textContent = `${data.from}: ${data.content}`;
+                    li.classList.add(data.from === username ? "sent" : "received");
+                    document.getElementById("chatMessages").appendChild(li);
+                    scrollToBottom();
+                }
+            };
+        }
 
-	    window.sendMessage = function () {
-	        const toUser = document.getElementById("userList").value;
-	        const content = document.getElementById("messageInput").value.trim();
-	        if (!toUser || !content) return;
+        function sendMessage() {
+            const toUser = document.getElementById("userList").value;
+            const content = document.getElementById("messageInput").value.trim();
+            if (!toUser || !content) return;
 
-	        socket.send(JSON.stringify({
-	            type: "message",
-	            from: username,
-	            to: toUser,
-	            content: content
-	        }));
+            socket.send(JSON.stringify({
+                type: "message",
+                from: username,
+                to: toUser,
+                content: content
+            }));
 
-	        const li = document.createElement("li");
-	        li.textContent = `You: ${content}`;
-	        li.classList.add("sent");
-	        document.getElementById("chatMessages").appendChild(li);
-	        document.getElementById("messageInput").value = "";
-	        scrollToBottom();
-	    }
+            const li = document.createElement("li");
+            li.textContent = `You: ${content}`;
+            li.classList.add("sent");
+            document.getElementById("chatMessages").appendChild(li);
+            document.getElementById("messageInput").value = "";
+            scrollToBottom();
+        }
 
-	    function updateUserList(users) {
-	        const userList = document.getElementById("userList");
-	        userList.innerHTML = "";
-	        users.forEach(u => {
-	            if (u !== username) {
-	                const option = document.createElement("option");
-	                option.value = u;
-	                option.textContent = u;
-	                userList.appendChild(option);
-	            }
-	        });
-	    }
+        function updateUserList(users) {
+            const userList = document.getElementById("userList");
+            userList.innerHTML = "";
+            users.forEach(u => {
+                if (u !== username) {
+                    const option = document.createElement("option");
+                    option.value = u;
+                    option.textContent = u;
+                    userList.appendChild(option);
+                }
+            });
+        }
 
-	    function scrollToBottom() {
-	        const chatBox = document.getElementById("chatMessages");
-	        chatBox.scrollTop = chatBox.scrollHeight;
-	    }
-	});
-	</script>
+        function scrollToBottom() {
+            const chatBox = document.getElementById("chatMessages");
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
 </body>
 </html>
