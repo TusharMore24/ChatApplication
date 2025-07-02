@@ -169,7 +169,7 @@
 	        username = document.getElementById("usernameInput").value.trim();
 	        if (!username) return alert("Enter a name!");
 
-	        socket = new WebSocket("wss://airfare-yen-acoustic-joan.trycloudflare.com/ws/chat");
+	        socket = new WebSocket("wss://severe-payroll-previews-validation.trycloudflare.com/ws/chat");
 
 	        socket.onopen = () => {
 	            socket.send(JSON.stringify({ type: "register", username }));
