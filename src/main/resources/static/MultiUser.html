@@ -168,11 +168,8 @@
             username = document.getElementById("usernameInput").value.trim();
             if (!username) return alert("Enter a name!");
 
-			//socket = new WebSocket("wss://chatapplication-773e.onrender.com/ws/chat");
-
-			socket = new WebSocket("wss://airfare-yen-acoustic-joan.trycloudflare.com/ws/chat");
-		
-			aabeab (Your commit message)
+            // Change this WebSocket URL if needed (to Render or Cloudflare tunnel)
+            socket = new WebSocket("wss://airfare-yen-acoustic-joan.trycloudflare.com/ws/chat");
 
             socket.onopen = () => {
                 socket.send(JSON.stringify({ type: "register", username }));
