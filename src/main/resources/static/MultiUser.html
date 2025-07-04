@@ -611,7 +611,7 @@
       // Show avatar initials
       const avatar = document.getElementById('userAvatar');
       avatar.textContent = username.charAt(0).toUpperCase();
-      socket = new WebSocket("ws://census-lancaster-shoot-down.trycloudflare.com/ws/chat");
+      socket = new WebSocket("wss://antivirus-promises-brandon-distributions.trycloudflare.com/ws/chat");
       socket.onopen = () => {
         socket.send(JSON.stringify({ type: "register", username }));
         document.getElementById("chatSection").style.display = "block";
