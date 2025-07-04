@@ -1,234 +1,739 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Multi-User Chat</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to right, #a1c4fd, #c2e9fb);
-            margin: 0;
-            padding: 0;
-            animation: fadeInBody 1s ease-in;
-        }
+  <meta charset="UTF-8">
+  <title>Neon Chat</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Orbitron:wght@500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --neon-blue: #08f;
+      --neon-purple: #a20dbd;
+      --neon-pink: #ff2a6d;
+      --dark-bg: #0d0d1a;
+      --darker-bg: #070710;
+      --light-text: #e6f1ff;
+      --light-accent: #ccd6f6;
+      --glow-blue: 0 0 10px rgba(0, 136, 255, 0.8);
+      --glow-purple: 0 0 10px rgba(162, 13, 189, 0.8);
+      --glow-pink: 0 0 10px rgba(255, 42, 109, 0.8);
+    }
 
-        @keyframes fadeInBody {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
-            animation: fadeInContainer 0.7s ease-in;
-        }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--dark-bg);
+      color: var(--light-text);
+      min-height: 80vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(162, 13, 189, 0.1) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(0, 136, 255, 0.1) 0%, transparent 20%);
+      animation: bgPulse 15s ease infinite;
+    }
 
-        @keyframes fadeInContainer {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
+    @keyframes bgPulse {
 
-        h2, h3 {
-            margin-top: 0;
-            color: #333;
-        }
+      0%,
+      100% {
+        background-color: var(--dark-bg);
+      }
 
-        input[type="text"], select {
-            width: 100%;
-            padding: 12px 15px;
-            margin: 10px 0;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            transition: border 0.3s;
-        }
+      50% {
+        background-color: #0f0f1f;
+      }
+    }
 
-        input[type="text"]:focus, select:focus {
-            border-color: #007bff;
-            outline: none;
-        }
+    .container {
+      width: 90%;
+      max-width: 700px;
+      background: rgba(13, 13, 26, 0.8);
+      border-radius: 20px;
+      box-shadow:
+        0 0 20px rgba(0, 136, 255, 0.3),
+        0 0 40px rgba(162, 13, 189, 0.2);
+      overflow: hidden;
+      border: 1px solid rgba(0, 136, 255, 0.2);
+      backdrop-filter: blur(10px);
+      transform: perspective(1000px);
+      animation: float 6s ease-in-out infinite;
+    }
 
-        button {
-            padding: 12px 25px;
-            font-size: 16px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
+    @keyframes float {
 
-        button:hover {
-            background: #0056b3;
-        }
+      0%,
+      100% {
+        transform: translateY(0) rotateX(0.5deg);
+      }
 
-        #chatMessages {
-            list-style: none;
-            padding: 10px;
-            height: 250px;
-            overflow-y: auto;
-            background: #f5f7fa;
-            border: 1px solid #ccc;
-            margin: 10px 0;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-        }
+      50% {
+        transform: translateY(-10px) rotateX(-0.5deg);
+      }
+    }
 
-        #chatMessages li {
-            padding: 10px 14px;
-            margin: 6px 0;
-            max-width: 70%;
-            border-radius: 18px;
-            position: relative;
-            animation: fadeInMsg 0.3s ease-in;
-            word-wrap: break-word;
-        }
+    .header {
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+      color: white;
+      padding: 25px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
 
-        #chatMessages li.sent {
-            background-color: #d4f8e8;
-            align-self: flex-end;
-            border-bottom-right-radius: 0;
-            text-align: right;
-        }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(to bottom right,
+          transparent 0%,
+          rgba(255, 255, 255, 0.1) 20%,
+          transparent 40%);
+      animation: shine 5s infinite linear;
+    }
 
-        #chatMessages li.received {
-            background-color: #e6f0ff;
-            align-self: flex-start;
-            border-bottom-left-radius: 0;
-            text-align: left;
-        }
+    @keyframes shine {
+      from {
+        transform: rotate(0deg);
+      }
 
-        @keyframes fadeInMsg {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
-        .message-area {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
+    .header h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 500;
+      margin: 0;
+      font-size: 2.2rem;
+      letter-spacing: 2px;
+      text-shadow: var(--glow-blue);
+      position: relative;
+      animation: textGlow 2s ease-in-out infinite alternate;
+    }
 
-        .message-area input {
-            flex: 1;
-        }
+    @keyframes textGlow {
+      from {
+        text-shadow: var(--glow-blue);
+      }
 
-        label {
-            font-weight: bold;
-            color: #444;
-            margin-top: 10px;
-            display: block;
-        }
+      to {
+        text-shadow: var(--glow-blue), 0 0 20px var(--neon-pink);
+      }
+    }
 
-        #registerSection {
-            animation: fadeInForm 0.5s ease-in;
-        }
+    .content {
+      padding: 30px;
+    }
 
-        @keyframes fadeInForm {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    .input-group {
+      position: relative;
+      margin: 30px 0;
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--neon-blue);
+      z-index: 2;
+      text-shadow: 0 0 5px var(--neon-blue);
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 18px 20px 18px 50px;
+      font-size: 16px;
+      border: 2px solid rgba(0, 136, 255, 0.3);
+      border-radius: 12px;
+      background: rgba(7, 7, 16, 0.7);
+      color: var(--light-text);
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      border-color: var(--neon-blue);
+      outline: none;
+      box-shadow: 0 0 15px var(--neon-blue);
+      background: rgba(7, 7, 16, 0.9);
+    }
+
+    select {
+      appearance: none;
+      padding-right: 50px;
+      cursor: pointer;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      color: white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: -1;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 136, 255, 0.4);
+    }
+
+    .btn:hover::before {
+      opacity: 1;
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn i {
+      margin-right: 10px;
+      font-size: 1.1em;
+    }
+
+    #chatMessages {
+      list-style: none;
+      padding: 20px;
+      height: 250px;
+      overflow-y: auto;
+      background: rgba(7, 7, 16, 0.5);
+      border-radius: 15px;
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--neon-blue) transparent;
+      border: 1px solid rgba(0, 136, 255, 0.1);
+    }
+
+    #chatMessages::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #chatMessages::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 10px;
+    }
+
+    #chatMessages::-webkit-scrollbar-thumb {
+      background-color: var(--neon-blue);
+      border-radius: 10px;
+    }
+
+    #chatMessages li {
+      padding: 15px 20px;
+      margin: 0;
+      max-width: 75%;
+      border-radius: 18px;
+      position: relative;
+      word-wrap: break-word;
+      animation: messageIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      line-height: 1.5;
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes messageIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    #chatMessages li.sent {
+      background: linear-gradient(135deg, rgba(0, 136, 255, 0.2), rgba(0, 136, 255, 0.3));
+      align-self: flex-end;
+      border-bottom-right-radius: 5px;
+      border: 1px solid rgba(0, 136, 255, 0.3);
+      animation-delay: 0.1s;
+    }
+
+    #chatMessages li.received {
+      background: linear-gradient(135deg, rgba(162, 13, 189, 0.2), rgba(162, 13, 189, 0.3));
+      align-self: flex-start;
+      border-bottom-left-radius: 5px;
+      border: 1px solid rgba(162, 13, 189, 0.3);
+    }
+
+    .message-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-top: 8px;
+      opacity: 0.8;
+    }
+
+    .message-sender {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--light-accent);
+    }
+
+    .message-time {
+      text-align: right;
+      font-style: italic;
+    }
+
+    .message-area {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .message-input {
+      flex: 1;
+      position: relative;
+    }
+
+    .message-input i {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--neon-blue);
+      cursor: pointer;
+      transition: all 0.3s;
+      text-shadow: 0 0 5px var(--neon-blue);
+    }
+
+    .message-input i:hover {
+      transform: translateY(-50%) scale(1.2);
+      color: var(--neon-pink);
+      text-shadow: 0 0 10px var(--neon-pink);
+    }
+
+    #messageInput {
+      padding-right: 50px;
+    }
+
+    .user-select {
+      position: relative;
+    }
+
+    .user-select i {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--neon-blue);
+      text-shadow: 0 0 5px var(--neon-blue);
+    }
+
+    #registerSection {
+      text-align: center;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    #chatSection {
+      display: none;
+      animation: slideIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-shadow: 0 0 10px var(--neon-blue);
+      box-shadow: 0 0 15px var(--neon-blue);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 15px var(--neon-blue);
+      }
+
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px var(--neon-purple);
+      }
+    }
+
+    .user-name {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--light-accent);
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-left: 10px;
+      background-color: var(--neon-blue);
+      box-shadow: 0 0 10px var(--neon-blue);
+      animation: statusPulse 2s infinite;
+    }
+
+    @keyframes statusPulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.7;
+        transform: scale(1.2);
+      }
+    }
+
+    .typing-indicator {
+      display: none;
+      font-size: 0.9rem;
+      color: var(--light-accent);
+      margin-top: -10px;
+      margin-bottom: 10px;
+      padding-left: 15px;
+      animation: fadeInOut 1.5s infinite;
+    }
+
+    @keyframes fadeInOut {
+
+      0%,
+      100% {
+        opacity: 0.5;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    .typing-dots {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .typing-dots span {
+      width: 8px;
+      height: 8px;
+      margin: 0 3px;
+      background-color: var(--neon-blue);
+      border-radius: 50%;
+      display: inline-block;
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .typing-dots span:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(0);
+      }
+
+      40% {
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        border-radius: 15px;
+      }
+
+      #chatMessages {
+        height: 300px;
+      }
+
+      .message-area {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <h2>Multi-User Chat</h2>
-
-        <div id="registerSection">
-            <input type="text" id="usernameInput" placeholder="Enter your name" />
-            <button onclick="registerUser()">Register</button>
-        </div>
-
-        <div id="chatSection" style="display:none;">
-            <h3>Welcome, <span id="currentUser"></span></h3>
-
-            <label>Select user to chat with:</label>
-            <select id="userList"></select>
-
-            <ul id="chatMessages"></ul>
-
-            <div class="message-area">
-                <input type="text" id="messageInput" placeholder="Type your message..." />
-                <button onclick="sendMessage()">Send</button>
-            </div>
-        </div>
+  <div class="container">
+    <div class="header">
+      <h2>NEON CHAT</h2>
     </div>
-
-    <script>
-        let socket;
-        let username;
-
-        function registerUser() {
-            username = document.getElementById("usernameInput").value.trim();
-            if (!username) return alert("Enter a name!");
-
-            socket = new WebSocket("wss://planets-enhancements-penalties-bored.trycloudflare.com/ws/chat");
-
-            socket.onopen = () => {
-                socket.send(JSON.stringify({ type: "register", username }));
-                document.getElementById("chatSection").style.display = "block";
-                document.getElementById("registerSection").style.display = "none";
-                document.getElementById("currentUser").textContent = username;
-            };
-
-            socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-
-                if (data.type === "userList") {
-                    updateUserList(data.users);
-                } else {
-                    const li = document.createElement("li");
-                    li.textContent = `${data.from}: ${data.content}`;
-                    li.classList.add(data.from === username ? "sent" : "received");
-                    document.getElementById("chatMessages").appendChild(li);
-                    scrollToBottom();
-                }
-            };
+    <div class="content">
+      <div id="registerSection">
+        <div class="input-group">
+          <i class="fas fa-user-astronaut"></i>
+          <input type="text" id="usernameInput" placeholder="Enter your cosmic name" />
+        </div>
+        <button class="btn" onclick="registerUser()">
+          <i class="fas fa-sign-in-alt"></i> ENTER CHAT
+        </button>
+      </div>
+      <div id="chatSection">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar"></div>
+          <div>
+            <span class="user-name" id="currentUser"></span>
+            <span class="status-indicator" id="userStatus"></span>
+          </div>
+        </div>
+        <div class="typing-indicator" id="typingIndicator">
+          <span id="typingUser"></span> <span class="typing-dots"><span></span><span></span><span></span></span>
+        </div>
+        <ul id="chatMessages"></ul>
+        <label>Select recipient:</label>
+        <div class="input-group user-select">
+          <i class="fas fa-users"></i>
+          <select id="userList"></select>
+        </div>
+        <div class="message-area">
+          <div class="message-input">
+            <input type="text" id="messageInput" placeholder="Type your message..."
+              onkeypress="handleKeyPress(event)" />
+            <i class="far fa-smile" onclick="showEmojiPicker()"></i>
+          </div>
+          <button class="btn" onclick="sendMessage()">
+            <i class="fas fa-paper-plane"></i> SEND
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let socket;
+    let username;
+    let typingTimer;
+    const TYPING_TIMEOUT = 3000; // 3 seconds
+    function registerUser() {
+      username = document.getElementById("usernameInput").value.trim();
+      if (!username) {
+        alert("Please enter a name to continue");
+        return;
+      }
+      // Show avatar initials
+      const avatar = document.getElementById('userAvatar');
+      avatar.textContent = username.charAt(0).toUpperCase();
+      socket = new WebSocket("ws://census-lancaster-shoot-down.trycloudflare.com/ws/chat");
+      socket.onopen = () => {
+        socket.send(JSON.stringify({ type: "register", username }));
+        document.getElementById("chatSection").style.display = "block";
+        document.getElementById("registerSection").style.display = "none";
+        document.getElementById("currentUser").textContent = username;
+        document.getElementById("userStatus").className = "status-indicator status-online";
+      };
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === "userList") {
+          updateUserList(data.users);
+        } else if (data.type === "typing") {
+          if (data.from !== username) {
+            if (data.isTyping) {
+              showTypingIndicator(data.from);
+            } else {
+              hideTypingIndicator();
+            }
+          }
+        } else {
+          addMessage(data.from, data.content, data.from === username ? "sent" : "received");
         }
-
-        function sendMessage() {
-            const toUser = document.getElementById("userList").value;
-            const content = document.getElementById("messageInput").value.trim();
-            if (!toUser || !content) return;
-
-            socket.send(JSON.stringify({
-                type: "message",
-                from: username,
-                to: toUser,
-                content: content
-            }));
-
-            const li = document.createElement("li");
-            li.textContent = `You: ${content}`;
-            li.classList.add("sent");
-            document.getElementById("chatMessages").appendChild(li);
-            document.getElementById("messageInput").value = "";
-            scrollToBottom();
+      };
+    }
+    function sendMessage() {
+      const toUser = document.getElementById("userList").value;
+      const content = document.getElementById("messageInput").value.trim();
+      if (!toUser) {
+        alert("Please select a recipient first");
+        return;
+      }
+      if (!content) {
+        alert("Message cannot be empty");
+        return;
+      }
+      socket.send(JSON.stringify({
+        type: "message",
+        from: username,
+        to: toUser,
+        content: content
+      }));
+      addMessage(username, content, "sent");
+      document.getElementById("messageInput").value = "";
+      socketSendTyping(false);
+    }
+    function addMessage(from, content, type) {
+      const li = document.createElement("li");
+      // Message header with sender and time
+      const header = document.createElement('div');
+      header.className = 'message-meta';
+      const sender = document.createElement('div');
+      sender.className = 'message-sender';
+      sender.textContent = type === 'sent' ? 'You' : from;
+      const time = document.createElement('div');
+      time.className = 'message-time';
+      time.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      header.appendChild(sender);
+      header.appendChild(time);
+      // Message content
+      const messageContent = document.createElement('div');
+      messageContent.textContent = content;
+      li.appendChild(header);
+      li.appendChild(messageContent);
+      li.classList.add(type);
+      document.getElementById("chatMessages").appendChild(li);
+      scrollToBottom();
+    }
+    function updateUserList(users) {
+      const userList = document.getElementById("userList");
+      userList.innerHTML = "";
+      // Add default option
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "Select a user...";
+      defaultOption.disabled = true;
+      defaultOption.selected = true;
+      userList.appendChild(defaultOption);
+      // Add users
+      users.forEach(u => {
+        if (u !== username) {
+          const option = document.createElement("option");
+          option.value = u;
+          option.textContent = u;
+          userList.appendChild(option);
         }
-
-        function updateUserList(users) {
-            const userList = document.getElementById("userList");
-            userList.innerHTML = "";
-            users.forEach(u => {
-                if (u !== username) {
-                    const option = document.createElement("option");
-                    option.value = u;
-                    option.textContent = u;
-                    userList.appendChild(option);
-                }
-            });
-        }
-
-        function scrollToBottom() {
-            const chatBox = document.getElementById("chatMessages");
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-    </script>
+      });
+    }
+    function scrollToBottom() {
+      const chatBox = document.getElementById("chatMessages");
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      } else {
+        // Notify others that you're typing
+        clearTimeout(typingTimer);
+        socketSendTyping(true);
+        typingTimer = setTimeout(() => {
+          socketSendTyping(false);
+        }, TYPING_TIMEOUT);
+      }
+    }
+    function socketSendTyping(isTyping) {
+      socket.send(JSON.stringify({
+        type: "typing",
+        from: username,
+        isTyping: isTyping
+      }));
+    }
+    function showTypingIndicator(user) {
+      const indicator = document.getElementById('typingIndicator');
+      document.getElementById('typingUser').textContent = user;
+      indicator.style.display = 'block';
+    }
+    function hideTypingIndicator() {
+      document.getElementById('typingIndicator').style.display = 'none';
+    }
+    function showEmojiPicker() {
+      alert("Emoji picker would appear here in a full implementation");
+    }
+  </script>
 </body>
+
 </html>

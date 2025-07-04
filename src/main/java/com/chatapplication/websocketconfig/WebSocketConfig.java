@@ -8,19 +8,18 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 
 @Configuration
 @EnableWebSocket
-public class WebSocketConfig implements WebSocketConfigurer{
-         private WebSocketHandler webSocketHandler;
-         
-         public WebSocketConfig(WebSocketHandler webSocketHandler) {
-        	 this.webSocketHandler=webSocketHandler;
-         }
-	
+public class WebSocketConfig implements WebSocketConfigurer {
+	private WebSocketHandler webSocketHandler;
+
+	public WebSocketConfig(WebSocketHandler webSocketHandler) {
+		this.webSocketHandler = webSocketHandler;
+	}
+
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		
-       registry.addHandler(webSocketHandler, "/ws/chat").setAllowedOriginPatterns("*");
-		
+
+		registry.addHandler(webSocketHandler, "/ws/chat").setAllowedOriginPatterns("*");
 
 	}
-  
+
 }
